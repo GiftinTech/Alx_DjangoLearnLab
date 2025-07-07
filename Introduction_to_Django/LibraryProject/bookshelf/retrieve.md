@@ -1,5 +1,5 @@
 # Retrieve new_book
 
-new_book = Book.objects.all()
+new_book = Book.objects.get('1984')
 
-# Expected output: <QuerySet [<Book: Book object (1)>]>
+# Expected output: 1984
