@@ -20,7 +20,7 @@ def books_in_library(library_name):
 # Retrieve the librarian for a library
 def library_librarian(library_name):
   library = Library.objects.get(name=library_name)
-  librarian = Librarian.objects.gettt(library=library)
+  librarian = Librarian.objects.get(library=library)
   print(f"The {library_name} librarian is {librarian.name}.")
 
 # Test Sample Queries
