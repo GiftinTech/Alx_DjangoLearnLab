@@ -16,7 +16,7 @@ class Book(models.Model):
   author = models.ForeignKey(
     Author, 
     on_delete=models.CASCADE, 
-    related_name='books',
+    related_name='books', # Allows accessing books by an author via author.books.all()
   )
   publication_date = models.DateField(null=True, blank=True)
 
@@ -29,7 +29,7 @@ class Book(models.Model):
     ]
     constraints = [
       models.UniqueConstraint(fields=['title', 'author'], name='unique_book_per_author'),
-    ]
+    ]  # Ensures a book with the same title cannot be assigned to the same author
 
   def __str__(self):
     return self.title
