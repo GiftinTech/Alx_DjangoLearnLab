@@ -25,24 +25,24 @@ class ListView(generics.ListAPIView):
   - Ordering is enabled by title and publication year
 """
 
-class DetailView(viewsets.ModelViewSet):
+class DetailView(generics.RetrieveAPIView):
   queryset = Book.objects.all()
   serializer_class = BookSerializer
   permission_classes = [IsAuthenticatedOrReadOnly]
 
-class CreateView(viewsets.ModelViewSet):
+class CreateView(generics.CreateAPIView):
   queryset = Book.objects.all()
   serializer_class = BookSerializer
   permission_classes = [IsAuthenticated]
 
 
-class UpdateView(viewsets.ModelViewSet):
+class UpdateView(generics.UpdateAPIView):
   queryset = Book.objects.all()
   serializer_class = BookSerializer
   permission_classes = [IsAuthenticated]
 
 
-class DeleteView(viewsets.ModelViewSet):
+class DeleteView(generics.DestroyAPIView):
   queryset = Book.objects.all()
   serializer_class = BookSerializer
   permission_classes = [IsAuthenticated]
