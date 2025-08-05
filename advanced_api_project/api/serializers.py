@@ -16,9 +16,8 @@ class BookSerializer(serializers.ModelSerializer):
 
 # Serializes the Author model
 class AuthorSerializer(serializers.ModelSerializer):
-  name = serializers.CharField(source='author.name', read_only=True) # create custom serializer field for author name
   books = BookSerializer(many=True, read_only=True) # Dynamically serialize all books related to this author
 
   class Meta:
     model = Author
-    fields = '__all__'
+    fields = ['name', 'books']
