@@ -36,7 +36,7 @@ def profile_view(request):
   return render(request, 'registration/profile.html')
 
 # LIST: Anyone can view all posts. Ordered newest first.
-class PostListView(ListView):
+class ListView(ListView):
   model = Post
   template_name = "blog/post_list.html"        # templates/blog/post_list.html
   context_object_name = "posts"
@@ -44,14 +44,14 @@ class PostListView(ListView):
   paginate_by = 10  # optional
 
 # DETAIL: Anyone can view a single post.
-class PostDetailView(DetailView):
+class DetailView(DetailView):
   model = Post
   template_name = "blog/post_detail.html"      # templates/blog/post_detail.html
   context_object_name = "post"
 
 # CREATE: Only authenticated users can create.
 # - author is set to request.user in form_valid()
-class PostCreateView(LoginRequiredMixin, CreateView):
+class CreateView(LoginRequiredMixin, CreateView):
   model = Post
   form_class = PostForm
   template_name = "blog/post_form.html"        # used for both create & update
@@ -62,7 +62,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     return super().form_valid(form)
 
 # UPDATE: Only the author can edit.
-class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class UpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
   model = Post
   form_class = PostForm
   template_name = "blog/post_form.html"
@@ -73,7 +73,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     return post.author == self.request.user
 
 # DELETE: Only the author can delete. Redirect to list on success.
-class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class DeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
   model = Post
   template_name = "blog/post_confirm_delete.html"
   success_url = reverse_lazy("post-list")
