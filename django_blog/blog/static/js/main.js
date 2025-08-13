@@ -1,4 +1,7 @@
-// Basic example javasript to show the dynamic behavior of forms
+// Run simple UX helpers after DOM loads
 document.addEventListener("DOMContentLoaded", () => {
-  alert("Blog app is active");
+  // Example: auto-hide flash messages
+  document.querySelectorAll(".alert[data-autohide]").forEach((el) => {
+    setTimeout(() => el.remove(), 4000);
+  });
 });

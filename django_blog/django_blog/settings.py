@@ -20,6 +20,9 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_URL = "static/"                              # URL prefix, e.g. /static/...
+STATICFILES_DIRS = [BASE_DIR / "static"]            # where your dev assets live (project-level)
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -57,11 +60,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'django_blog.urls'
 
+# Tell Django where your template folder is (so auth pages can extend base.html)
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [BASE_DIR / 'templates'],  # path to the global templates folder
+        'APP_DIRS': True, # look inside each app's templates folder
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
