@@ -17,18 +17,18 @@ urlpatterns = [
   # Profile page (requires login)
   path('profile/', profile_view, name='profile'),
 
-  # /posts/ → list
-  path("posts/", ListView.as_view(), name="post-list"),
-  # /posts/new/ → create
-  path("posts/new/", CreateView.as_view(), name="post-create"),
-  # /posts/<pk>/ → detail
-  path("posts/<int:pk>/", DetailView.as_view(), name="post-detail"),
-  # /posts/<pk>/edit/ → update
-  path("posts/<int:pk>/edit/", UpdateView.as_view(), name="post-update"),
-  # /posts/<pk>/delete/ → delete
-  path("posts/<int:pk>/delete/", DeleteView.as_view(), name="post-delete"),
+  # /post/ → list
+  path("post/", ListView.as_view(), name="post-list"),
+  # /post/new/ → create
+  path("post/new/", CreateView.as_view(), name="post-create"),
+  # /post/<pk>/ → detail
+  path("post/<int:pk>/", DetailView.as_view(), name="post-detail"),
+  # /post/<pk>/edit/ → update
+  path("post/<int:pk>/edit/", UpdateView.as_view(), name="post-update"),
+  # /post/<pk>/delete/ → delete
+  path("post/<int:pk>/delete/", DeleteView.as_view(), name="post-delete"),
  
-  path('posts/<int:pk>/comment/', views.add_comment, name='add_comment'),
+  path('post/<int:pk>/comment/', views.add_comment, name='add_comment'),
   path('comments/<int:pk>/edit/', views.CommentUpdateView.as_view(), name='edit_comment'),
   path('comments/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='delete_comment'),
 ]
