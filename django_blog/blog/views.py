@@ -106,22 +106,32 @@ from django.urls import reverse
 from .models import Post, Comment
 from .forms import CommentForm
 
-def add_comment(request, pk):
-  """Handle adding a comment to a specific post."""
-  post = get_object_or_404(Post, pk=pk)
+from django.views.generic import CreateView
+from .models import Post, Comment
+from .forms import CommentForm
+from django.urls import reverse_lazy
 
-  if request.method == 'POST':
-    form = CommentForm(request.POST)
-    if form.is_valid():
-      comment = form.save(commit=False)  # Create but don't save yet
-      comment.author = request.user      # Set logged-in user as author
-      comment.post = post                # Link to the current post
-      comment.save()
-      return redirect('post_detail', pk=post.pk)
-  else:
-    form = CommentForm()
+class CommentCreateView(CreateView):
+  model = Comment
+  form_class = CommentForm
+  template_name = 'blog/add_comment.html'
 
-  return render(request, 'blog/add_comment.html', {'form': form, 'post': post})
+  def form_valid(self, form):
+    post_pk = self.kwargs.get('pk')
+    post = get_object_or_404(Post, pk=post_pk)
+    
+    form.instance.author = self.request.user
+    form.instance.post = post
+    return super().form_valid(form)
+
+  def get_success_url(self):
+    return reverse_lazy('post_detail', kwargs={'pk': self.kwargs.get('pk')})
+
+  def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    post_pk = self.kwargs.get('pk')
+    context['post'] = get_object_or_404(Post, pk=post_pk)
+    return context
 
 
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
