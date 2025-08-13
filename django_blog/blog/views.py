@@ -1,12 +1,16 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
 from .models import Post, Comment
 from .forms import RegisterForm, PostForm, CommentForm
+
+from taggit.models import Tag
+
+from django.db.models import Q
 
 # Handles user registration
 # - Displays a registration form (GET request)
@@ -65,6 +69,28 @@ class DetailView(DetailView):
       comment.save()
       return redirect('post-detail', pk=self.object.pk)
     return self.get(request, *args, **kwargs)
+  
+
+class PostByTagListView(ListView):
+  model = Post
+  template_name = 'blog/post_list_by_tag.html'
+  context_object_name = 'posts'
+
+  def get_queryset(self):
+    tag_slug = self.kwargs.get('tag_slug')
+    self.tag = None
+    if tag_slug:
+      try:
+        self.tag = Tag.objects.get(slug=tag_slug)
+        return Post.objects.filter(tags__in=[self.tag])
+      except Tag.DoesNotExist:
+        return Post.objects.none()
+    return Post.objects.all()
+
+  def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    context['tag'] = self.tag
+    return context
 
 # CREATE: Only authenticated users can create.
 # - author is set to request.user in form_valid()
@@ -99,17 +125,6 @@ class DeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     post = self.get_object()
     return post.author == self.request.user
 
-from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.urls import reverse
-from .models import Post, Comment
-from .forms import CommentForm
-
-from django.views.generic import CreateView
-from .models import Post, Comment
-from .forms import CommentForm
-from django.urls import reverse_lazy
 
 class CommentCreateView(CreateView):
   model = Comment
@@ -133,7 +148,7 @@ class CommentCreateView(CreateView):
     context['post'] = get_object_or_404(Post, pk=post_pk)
     return context
 
-
+@method_decorator(login_required, name='dispatch')
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
   """Allow comment authors to edit their comments."""
   model = Comment
@@ -147,7 +162,7 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
   def get_success_url(self):
     return reverse('post_detail', kwargs={'pk': self.object.post.pk})
 
-
+@method_decorator(login_required, name='dispatch')
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
   """Allow comment authors to delete their comments."""
   model = Comment
@@ -159,3 +174,18 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
   def get_success_url(self):
     return reverse('post_detail', kwargs={'pk': self.object.post.pk})
+
+def search(request):
+  query = request.GET.get('q')
+  results = Post.objects.filter(
+    Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query)
+  ).distinct()
+  return render(request, 'blog/search_results.html', {'results': results, 'query': query})
+
+class TaggedPostListView(ListView):
+  model = Post
+  template_name = 'blog/tagged_posts.html'
+  context_object_name = 'posts'
+
+  def get_queryset(self):
+    return Post.objects.filter(tags__name=self.kwargs['tag_name'])

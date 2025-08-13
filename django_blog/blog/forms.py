@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Post, Comment
+from taggit.forms import TagWidget
 
 """ 
   Custom registration form extending Django's built-in UserCreationForm
@@ -24,6 +25,7 @@ class PostForm(forms.ModelForm):
     widgets = {
       "title": forms.TextInput(attrs={"placeholder": "Post title"}),
       "content": forms.Textarea(attrs={"rows": 8, "placeholder": "Write your post..."}),
+      'tags': TagWidget()
     }
 
 class CommentForm(forms.ModelForm):
