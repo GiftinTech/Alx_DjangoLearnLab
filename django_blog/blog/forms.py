@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Post
+from .models import Post, Comment
 
 """ 
   Custom registration form extending Django's built-in UserCreationForm
@@ -25,3 +25,12 @@ class PostForm(forms.ModelForm):
       "title": forms.TextInput(attrs={"placeholder": "Post title"}),
       "content": forms.Textarea(attrs={"rows": 8, "placeholder": "Write your post..."}),
     }
+
+class CommentForm(forms.ModelForm):
+  """Form for creating and editing comments."""
+  class Meta:
+      model = Comment
+      fields = ['content']   # Only content is editable by users
+      widgets = {
+          'content': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write your comment...'})
+      }

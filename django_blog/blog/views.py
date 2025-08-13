@@ -5,8 +5,8 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 
-from .forms import RegisterForm, PostForm
-from .models import Post
+from .models import Post, Comment
+from .forms import RegisterForm, PostForm, CommentForm
 
 # Handles user registration
 # - Displays a registration form (GET request)
@@ -49,6 +49,23 @@ class DetailView(DetailView):
   template_name = "blog/post_detail.html"      # templates/blog/post_detail.html
   context_object_name = "post"
 
+  def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    context['comments'] = self.object.comments.all().order_by('-created_at')
+    context['form'] = CommentForm()
+    return context
+
+  def post(self, request, *args, **kwargs):
+    self.object = self.get_object()
+    form = CommentForm(request.POST)
+    if form.is_valid():
+      comment = form.save(commit=False)
+      comment.post = self.object
+      comment.author = request.user
+      comment.save()
+      return redirect('post-detail', pk=self.object.pk)
+    return self.get(request, *args, **kwargs)
+
 # CREATE: Only authenticated users can create.
 # - author is set to request.user in form_valid()
 class CreateView(LoginRequiredMixin, CreateView):
@@ -81,3 +98,54 @@ class DeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
   def test_func(self):
     post = self.get_object()
     return post.author == self.request.user
+
+from django.shortcuts import get_object_or_404, redirect
+from django.views.generic import UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse
+from .models import Post, Comment
+from .forms import CommentForm
+
+def add_comment(request, pk):
+  """Handle adding a comment to a specific post."""
+  post = get_object_or_404(Post, pk=pk)
+
+  if request.method == 'POST':
+    form = CommentForm(request.POST)
+    if form.is_valid():
+      comment = form.save(commit=False)  # Create but don't save yet
+      comment.author = request.user      # Set logged-in user as author
+      comment.post = post                # Link to the current post
+      comment.save()
+      return redirect('post_detail', pk=post.pk)
+  else:
+    form = CommentForm()
+
+  return render(request, 'blog/add_comment.html', {'form': form, 'post': post})
+
+
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+  """Allow comment authors to edit their comments."""
+  model = Comment
+  form_class = CommentForm
+  template_name = 'blog/edit_comment.html'
+
+  def test_func(self):
+    comment = self.get_object()
+    return self.request.user == comment.author
+
+  def get_success_url(self):
+    return reverse('post_detail', kwargs={'pk': self.object.post.pk})
+
+
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+  """Allow comment authors to delete their comments."""
+  model = Comment
+  template_name = 'blog/delete_comment.html'
+
+  def test_func(self):
+    comment = self.get_object()
+    return self.request.user == comment.author
+
+  def get_success_url(self):
+    return reverse('post_detail', kwargs={'pk': self.object.post.pk})
