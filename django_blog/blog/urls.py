@@ -28,7 +28,7 @@ urlpatterns = [
   # /post/<pk>/delete/ → delete
   path("post/<int:pk>/delete/", DeleteView.as_view(), name="post-delete"),
  
-  path('post/<int:post_id>/comments/new/', views.CommentCreateView, name='add_comment'),
+  path('post/<int:pk>/comments/new/', views.CommentCreateView, name='add_comment'),
   path('comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='edit_comment'),
   path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='delete_comment'),
 
