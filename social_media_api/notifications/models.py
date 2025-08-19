@@ -12,7 +12,7 @@ class Notification(models.Model):
   target_ct = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
   target_id = models.PositiveIntegerField(null=True, blank=True)
   target = GenericForeignKey("target_ct", "target_id")
-  created_at = models.DateTimeField(auto_now_add=True)
+  timestamp = models.DateTimeField(auto_now_add=True)
   read = models.BooleanField(default=False)
 
   def __str__(self):

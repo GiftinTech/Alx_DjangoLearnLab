@@ -110,6 +110,17 @@ DATABASES = {
     )
 }
 
+# create super user
+if os.getenv("DJANGO_SUPERUSER_USERNAME"):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    if not User.objects.filter(username=os.getenv("DJANGO_SUPERUSER_USERNAME")).exists():
+        User.objects.create_superuser(
+            os.getenv("DJANGO_SUPERUSER_USERNAME"),
+            os.getenv("DJANGO_SUPERUSER_EMAIL"),
+            os.getenv("DJANGO_SUPERUSER_PASSWORD")
+        )
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

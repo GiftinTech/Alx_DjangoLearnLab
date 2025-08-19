@@ -31,3 +31,8 @@ class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = CustomUser
     fields = ["id", "username", "email", "bio", "profile_picture"]
+
+class TokenSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Token
+    fields = ('key',)
